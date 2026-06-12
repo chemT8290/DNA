@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNA를 지키는 매트릭스 · 면담 대비 인터랙티브</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --field:#0a0f1f;
+    --field-2:#0c1426;
+    --panel:#121b33;
+    --panel-2:#18233f;
+    --line:rgba(255,255,255,0.09);
+    --line-strong:rgba(255,255,255,0.16);
+    --ink:#eaeefb;
+    --ink-dim:#9aa6c6;
+    --ink-faint:#6c779a;
+    --signal:#54e3c2;      /* DNA / 데이터 / 보호 */
+    --signal-deep:#1f9d86;
+    --dcpip:#6a93ff;       /* 항산화 / DCPIP / 아스코르브산 */
+    --amber:#f6b94f;       /* 한계 / 주의 */
+    --rose:#ff7d92;        /* ROS / 산화 손상 */
+    --r:16px;
+    --maxw:1080px;
+    font-synthesis:none;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+  body{
+    font-family:"Pretendard",system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(106,147,255,0.10), transparent 60%),
+      radial-gradient(900px 500px at -5% 10%, rgba(84,227,194,0.07), transparent 55%),
+      linear-gradient(180deg,var(--field),var(--field-2));
+    background-attachment:fixed;
+    color:var(--ink);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .serif{font-family:"Noto Serif KR",serif}
+  .mono{font-family:"Space Mono",monospace}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(10,15,31,0.78);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{display:flex;align-items:center;gap:14px;max-width:var(--maxw);margin:0 auto;padding:10px 22px;overflow-x:auto;scrollbar-width:none}
+  .nav-inner::-webkit-scrollbar{display:none}
+  .nav-brand{font-weight:800;font-size:.82rem;letter-spacing:-.01em;white-space:nowrap;color:var(--ink);flex:none}
+  .nav-brand b{color:var(--signal)}
+  .nav-links{display:flex;gap:4px;margin-left:auto;flex:none}
+  .nav-links a{
+    font-size:.78rem;color:var(--ink-dim);text-decoration:none;
+    padding:6px 11px;border-radius:999px;white-space:nowrap;transition:.18s;font-weight:600;
+  }
+  .nav-links a:hover{color:var(--ink);background:var(--panel)}
+  .nav-links a.on{color:var(--field);background:var(--signal)}
+
+  /* ---------- HERO ---------- */
+  header.hero{padding:62px 0 40px;position:relative}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--signal);border:1px solid var(--line-strong);border-radius:999px;padding:6px 13px;margin-bottom:24px;
+  }
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 12px var(--signal)}
+  h1.title{font-size:clamp(2.1rem,6.4vw,4.3rem);line-height:1.08;font-weight:900;letter-spacing:-.02em}
+  h1.title .hl{color:var(--signal)}
+  .subtitle{font-size:clamp(1rem,2.2vw,1.32rem);color:var(--ink-dim);margin-top:18px;max-width:680px;font-weight:500}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+  .chip{font-family:"Space Mono",monospace;font-size:.74rem;color:var(--ink-dim);border:1px solid var(--line);border-radius:8px;padding:7px 12px;background:rgba(255,255,255,0.02)}
+  .chip b{color:var(--ink)}
+
+  .strand{position:absolute;right:-40px;top:40px;width:300px;height:380px;opacity:.5;pointer-events:none}
+  @media(max-width:880px){.strand{display:none}}
+
+  /* ---------- SECTION ---------- */
+  section{padding:54px 0;border-top:1px solid var(--line)}
+  .sec-tag{font-family:"Space Mono",monospace;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--signal);font-weight:700;margin-bottom:12px}
+  h2.sec-h{font-size:clamp(1.6rem,3.6vw,2.5rem);font-weight:900;letter-spacing:-.02em;line-height:1.15}
+  h2.sec-h .q{color:var(--ink-faint);font-family:"Space Mono",monospace;font-size:.55em;font-weight:400;margin-right:10px;vertical-align:middle}
+  .sec-lead{color:var(--ink-dim);font-size:1.03rem;margin-top:14px;max-width:720px}
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- OVERVIEW FLOW ---------- */
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:36px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  @media(max-width:760px){.flow{grid-template-columns:1fr 1fr}}
+  @media(max-width:430px){.flow{grid-template-columns:1fr}}
+  .flow-step{padding:20px 16px;border-right:1px solid var(--line);background:rgba(255,255,255,0.015);position:relative;transition:.2s}
+  .flow-step:last-child{border-right:none}
+  .flow-step:hover{background:var(--panel)}
+  .flow-step .n{font-family:"Space Mono",monospace;font-size:.72rem;color:var(--signal);font-weight:700}
+  .flow-step .t{font-weight:800;font-size:.98rem;margin:8px 0 6px}
+  .flow-step .d{font-size:.82rem;color:var(--ink-dim);line-height:1.5}
+
+  /* ---------- CARDS / GRID ---------- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+  @media(max-width:720px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px}
+  .card h3{font-size:1.12rem;font-weight:800;margin-bottom:10px;letter-spacing:-.01em}
+  .card p{color:var(--ink-dim);font-size:.95rem}
+  .card .icon{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;margin-bottom:14px;font-size:1.1rem}
+
+  /* ---------- THEORY ACCORDION ---------- */
+  .acc{margin-top:30px;display:flex;flex-direction:column;gap:12px}
+  .acc-item{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
+  .acc-head{width:100%;text-align:left;background:none;border:none;color:var(--ink);cursor:pointer;
+    display:flex;align-items:center;gap:14px;padding:18px 20px;font-family:inherit;transition:.2s}
+  .acc-head:hover{background:var(--panel-2)}
+  .acc-num{font-family:"Space Mono",monospace;font-size:.82rem;color:var(--signal);font-weight:700;flex:none;width:26px}
+  .acc-title{font-weight:800;font-size:1.04rem;flex:1;letter-spacing:-.01em}
+  .acc-plus{flex:none;width:24px;height:24px;border:1px solid var(--line-strong);border-radius:7px;display:grid;place-items:center;color:var(--ink-dim);transition:.25s;font-size:1rem}
+  .acc-item.open .acc-plus{transform:rotate(45deg);color:var(--signal);border-color:var(--signal)}
+  .acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .acc-inner{padding:2px 20px 22px 60px;color:var(--ink-dim);font-size:.95rem}
+  @media(max-width:520px){.acc-inner{padding-left:20px}}
+  .acc-inner .easy{background:rgba(84,227,194,0.08);border-left:3px solid var(--signal);border-radius:0 10px 10px 0;padding:12px 15px;margin-top:14px;color:var(--ink)}
+  .acc-inner .easy b{color:var(--signal)}
+  .acc-inner strong{color:var(--ink)}
+
+  /* ---------- TABS (연구 1·2·3) ---------- */
+  .tabs{display:flex;gap:8px;margin-top:30px;flex-wrap:wrap}
+  .tab-btn{font-family:inherit;font-weight:700;font-size:.9rem;color:var(--ink-dim);background:var(--panel);
+    border:1px solid var(--line);border-radius:11px;padding:11px 18px;cursor:pointer;transition:.2s}
+  .tab-btn:hover{color:var(--ink);border-color:var(--line-strong)}
+  .tab-btn.on{color:var(--field);background:var(--signal);border-color:var(--signal)}
+  .tab-panel{display:none;margin-top:22px}
+  .tab-panel.on{display:block;animation:fade .4s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .design-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+  @media(max-width:720px){.design-row{grid-template-columns:1fr}}
+  .why{background:linear-gradient(135deg,rgba(106,147,255,0.12),rgba(84,227,194,0.06));border:1px solid var(--line-strong);border-radius:14px;padding:20px}
+  .why .lab{font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dcpip);font-weight:700}
+  .why h4{font-size:1.05rem;margin:8px 0 10px;font-weight:800}
+  .why p{color:var(--ink-dim);font-size:.92rem}
+  .steps{list-style:none;counter-reset:s}
+  .steps li{counter-increment:s;position:relative;padding:9px 0 9px 36px;border-bottom:1px solid var(--line);font-size:.92rem;color:var(--ink-dim)}
+  .steps li:last-child{border-bottom:none}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:8px;width:24px;height:24px;border-radius:7px;
+    background:var(--panel-2);color:var(--signal);font-family:"Space Mono",monospace;font-size:.78rem;font-weight:700;display:grid;place-items:center}
+  .steps li b{color:var(--ink)}
+
+  /* variable design table */
+  .vtable{width:100%;border-collapse:collapse;margin-top:8px;font-size:.86rem}
+  .vtable th,.vtable td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  .vtable th{color:var(--ink-faint);font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+  .vtable td{color:var(--ink-dim)}
+  .vtable td b{color:var(--ink)}
+  .vtable tr.hi td{background:rgba(84,227,194,0.07)}
+  .badge-ctl{font-family:"Space Mono",monospace;font-size:.68rem;padding:2px 7px;border-radius:5px;font-weight:700}
+  .bc-c{background:rgba(154,166,198,0.18);color:var(--ink-dim)}
+  .bc-e{background:rgba(106,147,255,0.18);color:var(--dcpip)}
+  .bc-best{background:rgba(84,227,194,0.18);color:var(--signal)}
+
+  /* ---------- RESULTS: DIAL ---------- */
+  .dial-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:26px;margin-top:30px}
+  .dial-stops{display:flex;gap:8px;margin:6px 0 24px;flex-wrap:wrap}
+  .dial-stop{flex:1;min-width:64px;font-family:"Space Mono",monospace;font-weight:700;font-size:.95rem;color:var(--ink-dim);
+    background:var(--field-2);border:1px solid var(--line);border-radius:11px;padding:13px 8px;cursor:pointer;transition:.2s;text-align:center}
+  .dial-stop:hover{border-color:var(--line-strong);color:var(--ink)}
+  .dial-stop.on{color:var(--field);background:var(--signal);border-color:var(--signal);box-shadow:0 0 24px rgba(84,227,194,0.3)}
+  .dial-stop small{display:block;font-family:"Pretendard";font-size:.62rem;font-weight:600;opacity:.8;margin-top:3px}
+
+  .bars{display:flex;flex-direction:column;gap:16px;margin-top:8px}
+  .bar-row{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:center}
+  @media(max-width:520px){.bar-row{grid-template-columns:92px 1fr}}
+  .bar-label{font-size:.84rem;font-weight:700}
+  .bar-label small{display:block;font-weight:500;color:var(--ink-faint);font-size:.72rem}
+  .bar-track{height:30px;background:var(--field-2);border-radius:8px;overflow:hidden;border:1px solid var(--line);position:relative}
+  .bar-fill{height:100%;width:0;border-radius:7px;transition:width .55s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;justify-content:flex-end;padding-right:9px}
+  .bf-anti{background:linear-gradient(90deg,rgba(106,147,255,0.35),var(--dcpip))}
+  .bf-loss{background:linear-gradient(90deg,rgba(255,125,146,0.35),var(--rose))}
+  .bf-net{background:linear-gradient(90deg,rgba(84,227,194,0.35),var(--signal))}
+  .bar-fill span{font-family:"Space Mono",monospace;font-size:.72rem;font-weight:700;color:var(--field)}
+  .dial-read{margin-top:22px;padding:18px 20px;border-radius:13px;border:1px solid var(--line-strong);background:var(--field-2)}
+  .dial-read .vk{font-family:"Space Mono",monospace;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+  .dial-read .vt{font-size:1rem;color:var(--ink-dim)}
+  .dial-read .vt b{color:var(--ink)}
+
+  /* exact data table */
+  .data-note{font-size:.82rem;color:var(--ink-faint);margin-top:10px;font-style:italic}
+
+  /* ---------- GEL TABLE ---------- */
+  .gel-table-wrap{overflow-x:auto;margin-top:20px;border:1px solid var(--line);border-radius:14px}
+  table.gel{width:100%;border-collapse:collapse;font-size:.84rem;min-width:560px}
+  table.gel th,table.gel td{padding:11px 13px;text-align:center;border-bottom:1px solid var(--line)}
+  table.gel th{background:var(--field-2);color:var(--ink-faint);font-family:"Space Mono",monospace;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;font-weight:700;position:sticky;top:0}
+  table.gel td:first-child{text-align:left;font-weight:700;color:var(--ink)}
+  table.gel .mono{color:var(--ink-dim)}
+  table.gel tr.excluded td{opacity:.42}
+  table.gel tr.peak td{background:rgba(84,227,194,0.08)}
+  .tag-x{font-family:"Space Mono",monospace;font-size:.62rem;background:rgba(255,125,146,0.16);color:var(--rose);padding:2px 7px;border-radius:5px;font-weight:700}
+
+  /* ---------- DNA TOPOLOGY ---------- */
+  .topo{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:24px}
+  @media(max-width:620px){.topo{grid-template-columns:1fr}}
+  .topo-card{border:1px solid var(--line);border-radius:14px;padding:18px;background:var(--panel);cursor:pointer;transition:.2s;text-align:center}
+  .topo-card:hover{border-color:var(--line-strong);transform:translateY(-3px)}
+  .topo-card.on{border-color:var(--signal);background:var(--panel-2)}
+  .topo-card svg{width:78px;height:60px;margin:0 auto 8px}
+  .topo-card .tn{font-weight:800;font-size:.95rem}
+  .topo-card .te{font-family:"Space Mono",monospace;font-size:.7rem;color:var(--ink-faint);margin-top:2px}
+  .topo-card .ts{font-size:.78rem;color:var(--ink-dim);margin-top:8px}
+  .topo-speed{font-family:"Space Mono",monospace;font-size:.66rem;margin-top:8px;color:var(--signal);font-weight:700}
+
+  /* ---------- LIMITATIONS ---------- */
+  .lim-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:30px}
+  @media(max-width:720px){.lim-grid{grid-template-columns:1fr}}
+  .lim{border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:0 13px 13px 0;padding:18px 20px;background:var(--panel)}
+  .lim h4{font-size:1rem;font-weight:800;margin-bottom:7px;display:flex;align-items:center;gap:8px}
+  .lim h4 .ic{color:var(--amber)}
+  .lim p{color:var(--ink-dim);font-size:.9rem}
+  .lim .fix{margin-top:10px;font-size:.86rem;color:var(--signal);font-weight:600}
+  .lim .fix::before{content:"→ 개선  ";font-family:"Space Mono",monospace;font-size:.72rem;opacity:.8}
+
+  /* ---------- Q&A ---------- */
+  .qa-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px;align-items:center}
+  .filt{font-family:inherit;font-weight:700;font-size:.82rem;color:var(--ink-dim);background:var(--panel);
+    border:1px solid var(--line);border-radius:999px;padding:8px 15px;cursor:pointer;transition:.2s}
+  .filt:hover{color:var(--ink)}
+  .filt.on{color:var(--field);background:var(--signal);border-color:var(--signal)}
+  .filt.star.on{background:var(--amber);border-color:var(--amber)}
+  .qa-count{font-family:"Space Mono",monospace;font-size:.74rem;color:var(--ink-faint);margin-left:auto}
+
+  .qa-list{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+  .qa{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;transition:.2s}
+  .qa.starred{border-left:3px solid var(--amber)}
+  .qa-q{width:100%;text-align:left;background:none;border:none;color:var(--ink);cursor:pointer;font-family:inherit;
+    display:flex;gap:13px;align-items:flex-start;padding:17px 19px;transition:.2s}
+  .qa-q:hover{background:var(--panel-2)}
+  .qa-cat{flex:none;font-family:"Space Mono",monospace;font-size:.64rem;font-weight:700;padding:3px 8px;border-radius:6px;margin-top:2px;letter-spacing:.03em}
+  .cat-이론{background:rgba(154,166,198,0.16);color:var(--ink-dim)}
+  .cat-연구1{background:rgba(106,147,255,0.16);color:var(--dcpip)}
+  .cat-연구2{background:rgba(106,147,255,0.16);color:var(--dcpip)}
+  .cat-연구3{background:rgba(84,227,194,0.16);color:var(--signal)}
+  .cat-결론{background:rgba(246,185,79,0.16);color:var(--amber)}
+  .qa-qtext{flex:1;font-weight:700;font-size:.97rem;line-height:1.45}
+  .qa-star{flex:none;color:var(--amber);font-size:.9rem;margin-top:2px;opacity:0}
+  .qa.starred .qa-star{opacity:1}
+  .qa-toggle{flex:none;color:var(--ink-faint);transition:.25s;margin-top:2px}
+  .qa.open .qa-toggle{transform:rotate(180deg);color:var(--signal)}
+  .qa-a{max-height:0;overflow:hidden;transition:max-height .4s ease}
+  .qa-a-inner{padding:0 19px 20px 19px;color:var(--ink-dim);font-size:.94rem;line-height:1.7}
+  .qa-a-inner .ans-lab{font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--signal);font-weight:700;display:block;margin-bottom:8px}
+  .qa-a-inner strong{color:var(--ink)}
+  .qa-a-inner .pro{margin-top:14px;padding:12px 15px;background:rgba(246,185,79,0.08);border-left:3px solid var(--amber);border-radius:0 10px 10px 0;font-size:.88rem;color:var(--ink)}
+  .qa-a-inner .pro b{color:var(--amber)}
+  .qa-a-inner .key{color:var(--signal);font-weight:700}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:48px 0 64px;border-top:1px solid var(--line);text-align:center}
+  footer p{color:var(--ink-faint);font-size:.85rem}
+  footer .big{font-family:"Noto Serif KR",serif;font-weight:700;color:var(--ink-dim);font-size:1.05rem;margin-bottom:10px}
+  .print-btn{margin-top:18px;font-family:inherit;font-weight:700;font-size:.88rem;color:var(--field);background:var(--signal);
+    border:none;border-radius:10px;padding:11px 22px;cursor:pointer;transition:.2s}
+  .print-btn:hover{filter:brightness(1.08)}
+
+  :focus-visible{outline:2px solid var(--signal);outline-offset:3px;border-radius:4px}
+
+  @media print{
+    nav,.strand,.print-btn{display:none}
+    body{background:#fff;color:#111}
+    .qa-a{max-height:none!important}.acc-body{max-height:none!important}
+    .tab-panel{display:block!important}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <span class="nav-brand">DNA를 지키는 <b>매트릭스</b></span>
+    <div class="nav-links">
+      <a href="#overview">한눈에</a>
+      <a href="#why">연구동기</a>
+      <a href="#theory">이론</a>
+      <a href="#method">연구과정</a>
+      <a href="#results">결과해석</a>
+      <a href="#limits">한계점</a>
+      <a href="#qa">면담Q&amp;A</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot"></span>제46회 인천광역시과학전람회 · 출품번호 3325 · 생물</span>
+    <h1 class="title serif">DNA를 지키는 <span class="hl">매트릭스</span></h1>
+    <p class="subtitle">항산화 물질(비타민C)을 <b style="color:var(--ink)">천천히 내보내는 키토산 필름</b>을 만들어, 활성산소(ROS)로 인한 DNA 손상을 얼마나 막아주는지 분석한 연구.</p>
+    <div class="hero-meta">
+      <span class="chip"><b>핵심 소재</b> 키토산 + 아스코르브산</span>
+      <span class="chip"><b>최적 농도</b> 50&thinsp;mM</span>
+      <span class="chip"><b>검증 방법</b> OD600 · 전기영동 · DCPIP</span>
+    </div>
+  </div>
+  <svg class="strand" viewBox="0 0 120 200" fill="none" aria-hidden="true">
+    <g stroke-linecap="round">
+      <path d="M30 5 C90 35 30 65 90 95 C30 125 90 155 30 195" stroke="#6a93ff" stroke-width="3" opacity="0.7"/>
+      <path d="M90 5 C30 35 90 65 30 95 C90 125 30 155 90 195" stroke="#54e3c2" stroke-width="3" opacity="0.7"/>
+      <line x1="42" y1="20" x2="78" y2="20" stroke="#9aa6c6" stroke-width="2"/>
+      <line x1="36" y1="50" x2="84" y2="50" stroke="#9aa6c6" stroke-width="2"/>
+      <line x1="42" y1="80" x2="78" y2="80" stroke="#9aa6c6" stroke-width="2"/>
+      <line x1="42" y1="110" x2="78" y2="110" stroke="#9aa6c6" stroke-width="2"/>
+      <line x1="36" y1="140" x2="84" y2="140" stroke="#9aa6c6" stroke-width="2"/>
+      <line x1="42" y1="170" x2="78" y2="170" stroke="#9aa6c6" stroke-width="2"/>
+    </g>
+  </svg>
+</header>
+
+<!-- ================= OVERVIEW ================= -->
+<section id="overview">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-tag">한눈에 보기</div>
+      <h2 class="sec-h serif">연구의 큰 흐름</h2>
+      <p class="sec-lead">발표할 때 이 다섯 단계를 머릿속에 그려두면, 어떤 질문이 와도 "지금 어느 단계 이야기인지" 길을 잃지 않습니다.</p>
+    </div>
+    <div class="flow reveal">
+      <div class="flow-step"><div class="n">01 문제</div><div class="t">DNA가 손상된다</div><div class="d">작년 실험 중 plasmid DNA의 구조가 망가짐 → 원인을 ROS(활성산소)로 지목</div></div>
+      <div class="flow-step"><div class="n">02 아이디어</div><div class="t">천천히 내보내자</div><div class="d">항산화제를 한 번에 넣으면 금방 사라짐 → 키토산 필름에 담아 서서히 방출</div></div>
+      <div class="flow-step"><div class="n">03 제작</div><div class="t">매트릭스 만들기</div><div class="d">키토산+아스코르브산 필름 제작·조건 최적화 → DCPIP로 방출 확인</div></div>
+      <div class="flow-step"><div class="n">04 검증</div><div class="t">효과 측정</div><div class="d">대장균 생장량(OD600) + 플라스미드 전기영동으로 DNA 보호 효과 확인</div></div>
+      <div class="flow-step"><div class="n">05 결론</div><div class="t">50&thinsp;mM이 최적</div><div class="d">항산화 이득과 항균 손실의 균형점이 50&thinsp;mM → DNA 안정성 기여 가능성</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WHY ================= -->
+<section id="why">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-tag">연구 동기 & 목적</div>
+      <h2 class="sec-h serif">왜 이 연구를 했나?</h2>
+    </div>
+    <div class="grid2">
+      <div class="card reveal">
+        <div class="icon" style="background:rgba(255,125,146,0.14)">🧬</div>
+        <h3>문제: DNA는 산화에 약하다</h3>
+        <p>UV나 외부 환경에 노출되면 <strong style="color:var(--ink)">활성산소종(ROS)</strong>이 생기고, 특히 <strong style="color:var(--ink)">하이드록실 라디칼</strong>이 DNA 가닥을 끊어버립니다. UV가 직접 만드는 손상은 항산화제로 못 막지만, <strong style="color:var(--ink)">ROS가 만드는 손상은 항산화제로 막을 수 있다</strong>는 점에 주목했습니다.</p>
+      </div>
+      <div class="card reveal">
+        <div class="icon" style="background:rgba(106,147,255,0.14)">💧</div>
+        <h3>한계: 항산화제는 금방 사라진다</h3>
+        <p>아스코르브산(비타민C)은 ROS를 잘 없애지만 <strong style="color:var(--ink)">산소와 만나면 빠르게 분해</strong>됩니다. 그냥 넣으면 일회성이고 농도 유지가 어렵습니다. 그래서 "한 번에"가 아니라 <strong style="color:var(--ink)">"천천히 계속" 내보내는</strong> 전달 시스템이 필요했습니다.</p>
+      </div>
+      <div class="card reveal">
+        <div class="icon" style="background:rgba(84,227,194,0.14)">🧪</div>
+        <h3>해결: 키토산이라는 그릇</h3>
+        <p>키토산은 <strong style="color:var(--ink)">아민기·하이드록실기</strong>가 많아 아스코르브산과 수소결합을 만들어 붙잡아 둘 수 있습니다. 게다가 <strong style="color:var(--ink)">생분해성이 좋고 독성이 낮으며</strong>, 물에 닿으면 팽윤되며 서서히 내용물을 방출(서방형)합니다.</p>
+      </div>
+      <div class="card reveal">
+        <div class="icon" style="background:rgba(246,185,79,0.14)">🎯</div>
+        <h3>목적: 두 가지를 확인</h3>
+        <p><strong style="color:var(--ink)">① 제작·최적화</strong> — 항산화 매트릭스를 만들고 농도별 특성을 비교한다.<br><strong style="color:var(--ink)">② 효과 검증</strong> — 산화 스트레스 환경에서 대장균 생장량과 플라스미드 DNA 전기영동으로 보호 효과를 확인한다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THEORY ================= -->
+<section id="theory">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-tag">이론적 배경</div>
+      <h2 class="sec-h serif">알아둬야 할 5가지 원리</h2>
+      <p class="sec-lead">각 항목을 펼치면 <b style="color:var(--signal)">"쉽게 말하면"</b> 박스로 핵심을 한 줄 요약했습니다. 면담에서는 이 원리들을 "왜 이 방법을 썼는가"의 근거로 쓰게 됩니다.</p>
+    </div>
+    <div class="acc reveal" id="theoryAcc"></div>
+  </div>
+</section>
+
+<!-- ================= METHOD ================= -->
+<section id="method">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-tag">연구 과정 & 설계 이유</div>
+      <h2 class="sec-h serif">연구 1·2·3</h2>
+      <p class="sec-lead">단순히 "무엇을 했나"가 아니라, <b style="color:var(--dcpip)">"왜 이렇게 설계했나"</b>가 면담의 핵심입니다. 각 연구의 설계 의도를 함께 정리했습니다.</p>
+    </div>
+    <div class="tabs reveal">
+      <button class="tab-btn on" data-tab="m1">연구 1 · 매트릭스 제작</button>
+      <button class="tab-btn" data-tab="m2">연구 2 · 방출 확인(DCPIP)</button>
+      <button class="tab-btn" data-tab="m3">연구 3 · DNA 손상 보호</button>
+    </div>
+
+    <!-- 연구1 -->
+    <div class="tab-panel on" id="m1">
+      <div class="design-row">
+        <div class="card">
+          <h3 style="margin-bottom:14px">제작 과정</h3>
+          <ol class="steps">
+            <li>아세트산 <b>1% 수용액</b>에 키토산 분말을 <b>1.2%(w/v)</b> 넣고 80℃·800rpm 교반</li>
+            <li>완전히 녹으면 아스코르브산을 <b>0 / 10 / 50 / 100&thinsp;mM</b>로 각각 첨가</li>
+            <li>글리세롤 <b>1%</b>를 넣어 유연성 부여</li>
+            <li>거즈로 불용물을 거르고 페트리디시에 분주</li>
+            <li><b>50℃ 배양기에서 24시간 이상</b> 건조 → 필름 완성</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:14px">조건을 이렇게 정한 이유</h3>
+          <table class="vtable">
+            <tr><th>변인</th><th>비교한 조건</th><th>선택</th></tr>
+            <tr class="hi"><td><b>건조</b></td><td>자연건조 vs 50℃</td><td>자연건조는 3일+ → <b>50℃</b></td></tr>
+            <tr class="hi"><td><b>용해</b></td><td>저농도·과량아세트산</td><td>교반+<b>거즈 정제</b></td></tr>
+            <tr class="hi"><td><b>글리세롤</b></td><td>0% · 과량</td><td>0%는 파손,과량은 끈적 → <b>1%</b></td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="why" style="margin-top:18px">
+        <span class="lab">설계 포인트</span>
+        <h4>핵심: "농도만 다르고 나머지는 똑같이"</h4>
+        <p>아스코르브산 농도(0·10·50·100&thinsp;mM)만 변인으로 두고 키토산·아세트산·글리세롤·건조조건·필름 면적(1cm²)은 모두 동일하게 통제했습니다. 그래야 "효과 차이 = 순수하게 농도 차이"라고 말할 수 있기 때문입니다.</p>
+      </div>
+    </div>
+
+    <!-- 연구2 -->
+    <div class="tab-panel" id="m2">
+      <div class="design-row">
+        <div class="card">
+          <h3 style="margin-bottom:14px">방출 확인 과정</h3>
+          <ol class="steps">
+            <li>아스코르브산 <b>50&thinsp;mM</b> 매트릭스를 일정량의 증류수에 침지</li>
+            <li>일정 시간 후 침지 용액을 새 페트리디시로 옮김</li>
+            <li>침지 용액에 <b>DCPIP 용액</b> 첨가</li>
+            <li><b>청색 → 무색</b> 탈색이 보이면 환원성 물질이 방출된 것</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:14px">DCPIP가 알려주는 것</h3>
+          <p style="color:var(--ink-dim);font-size:.94rem">DCPIP는 <strong style="color:var(--dcpip)">산화 상태에서 짙은 청색</strong>입니다. 아스코르브산처럼 전자를 내주는(환원성) 물질을 만나면 전자를 받아 <strong style="color:var(--ink)">무색으로 탈색</strong>됩니다.</p>
+          <p style="color:var(--ink-dim);font-size:.94rem;margin-top:12px">즉, 탈색이 일어났다는 것은 <strong style="color:var(--ink)">매트릭스 밖으로 아스코르브산이 실제로 빠져나왔다</strong>는 증거가 됩니다.</p>
+        </div>
+      </div>
+      <div class="why" style="margin-top:18px">
+        <span class="lab">설계 포인트</span>
+        <h4>"필름이 항산화제를 정말 내보내는가?"를 먼저 증명</h4>
+        <p>DNA 보호 효과를 보기 전에, 매트릭스가 <strong style="color:var(--ink)">담지(붙잡기)</strong>뿐 아니라 <strong style="color:var(--ink)">방출(내보내기)</strong>까지 한다는 것을 보여야 논리가 성립합니다. DCPIP 탈색은 그 첫 단추를 정성적으로 확인하는 실험입니다.</p>
+      </div>
+    </div>
+
+    <!-- 연구3 -->
+    <div class="tab-panel" id="m3">
+      <div class="card">
+        <h3 style="margin-bottom:14px">변인 설계 (대조군 2 + 실험군 7)</h3>
+        <div class="gel-table-wrap" style="margin-top:6px">
+          <table class="gel" style="min-width:520px">
+            <tr><th>구분</th><th>처리 조건</th><th>확인 목적</th></tr>
+            <tr><td>대조군 1 <span class="badge-ctl bc-c">CTRL</span></td><td>순수 대장균</td><td class="mono">정상 기준</td></tr>
+            <tr><td>대조군 2 <span class="badge-ctl bc-c">CTRL</span></td><td>DNA + H₂O₂ + UV</td><td class="mono">손상 기준</td></tr>
+            <tr><td>실험군 1~3 <span class="badge-ctl bc-e">EXP</span></td><td>+ 아스코르브산 용액 10/50/100&thinsp;mM</td><td class="mono">용액 비교</td></tr>
+            <tr><td>실험군 4 <span class="badge-ctl bc-e">EXP</span></td><td>+ 키토산 단독 매트릭스</td><td class="mono">필름만의 효과</td></tr>
+            <tr class="peak"><td>실험군 5~7 <span class="badge-ctl bc-best">MATRIX</span></td><td>+ 키토산 항산화 매트릭스 10/50/100&thinsp;mM</td><td class="mono">최종 소재</td></tr>
+          </table>
+        </div>
+        <p class="data-note">※ 산화 스트레스: 과산화수소 1%(w/v) + UV-A(365nm), 15cm, 15분 · 매트릭스 면적 1cm²로 통제</p>
+      </div>
+      <div class="design-row">
+        <div class="why">
+          <span class="lab">설계 포인트 ①</span>
+          <h4>왜 "용액"과 "매트릭스"를 둘 다 비교했나</h4>
+          <p>아스코르브산을 그냥 녹인 용액(실험군 1~3)과, 필름에 담은 매트릭스(실험군 5~7)를 같은 농도로 비교하면 <strong style="color:var(--ink)">"서서히 방출하는 방식이 실제로 다른 결과를 내는가"</strong>를 확인할 수 있습니다. 키토산 단독(실험군 4)은 필름 자체의 항균 효과를 분리해 보기 위한 기준입니다.</p>
+        </div>
+        <div class="why">
+          <span class="lab">설계 포인트 ②</span>
+          <h4>왜 두 가지 방법으로 측정했나</h4>
+          <p><strong style="color:var(--ink)">OD600(생장량)</strong>은 DNA 손상→돌연변이→생장 저해를 <strong style="color:var(--ink)">간접적으로</strong> 보는 방법이고, <strong style="color:var(--ink)">전기영동</strong>은 DNA 가닥의 모양 변화를 <strong style="color:var(--ink)">직접</strong> 보는 방법입니다. 간접+직접을 함께 써서 결론을 보강하려 했습니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section id="results">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-tag">결과 해석</div>
+      <h2 class="sec-h serif">데이터가 말하는 것</h2>
+      <p class="sec-lead">결과는 세 갈래입니다. ① DCPIP 방출 확인 ② OD600 — 농도의 균형점 ③ 전기영동 — DNA 모양 변화. 아래 도구를 직접 눌러보며 흐름을 익히세요.</p>
+    </div>
+
+    <!-- DIAL -->
+    <div class="dial-wrap reveal">
+      <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+        <h3 style="font-size:1.15rem;font-weight:800">아스코르브산 농도 균형 다이얼</h3>
+        <span style="font-size:.82rem;color:var(--ink-faint)">— 농도를 눌러 두 효과의 줄다리기를 보세요</span>
+      </div>
+      <div class="dial-stops" id="dialStops">
+        <button class="dial-stop" data-c="0">0&thinsp;mM<small>키토산만</small></button>
+        <button class="dial-stop" data-c="10">10&thinsp;mM<small>역부족</small></button>
+        <button class="dial-stop on" data-c="50">50&thinsp;mM<small>최적 ★</small></button>
+        <button class="dial-stop" data-c="100">100&thinsp;mM<small>붕괴</small></button>
+      </div>
+      <div class="bars">
+        <div class="bar-row">
+          <div class="bar-label">항산화 이득<small>ROS 소거</small></div>
+          <div class="bar-track"><div class="bar-fill bf-anti" id="barAnti"><span></span></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">항균 손실<small>키토산 중화</small></div>
+          <div class="bar-track"><div class="bar-fill bf-loss" id="barLoss"><span></span></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label" style="color:var(--signal)">순 생장 결과<small style="color:var(--signal)">최종 OD 경향</small></div>
+          <div class="bar-track"><div class="bar-fill bf-net" id="barNet"><span></span></div></div>
+        </div>
+      </div>
+      <div class="dial-read" id="dialRead"></div>
+      <p class="data-note">※ '순 생장 결과' 막대는 농도별 경향을 보여주는 개념도입니다. 실제 측정값은 아래 표를 참고하세요.</p>
+    </div>
+
+    <!-- exact OD table -->
+    <div class="card reveal" style="margin-top:18px">
+      <h3 style="margin-bottom:14px">실측 OD600 값 (제시된 수치)</h3>
+      <div class="gel-table-wrap" style="border:none">
+        <table class="gel" style="min-width:420px">
+          <tr><th>조건</th><th>18시간</th><th>36시간</th><th>해석</th></tr>
+          <tr><td>키토산 단독</td><td class="mono">0.978</td><td class="mono">0.972</td><td style="font-size:.8rem;color:var(--ink-dim)">항균으로 소폭 감소</td></tr>
+          <tr><td>+ 10&thinsp;mM</td><td class="mono">0.956</td><td class="mono">0.916</td><td style="font-size:.8rem;color:var(--rose)">더 크게 감소(역효과)</td></tr>
+          <tr class="peak"><td>+ 50&thinsp;mM</td><td class="mono">—</td><td class="mono" style="color:var(--signal)">단독보다 ↑</td><td style="font-size:.8rem;color:var(--signal)">항산화 우세, 최적</td></tr>
+          <tr><td>+ 100&thinsp;mM</td><td class="mono">—</td><td class="mono" style="color:var(--rose)">0.601</td><td style="font-size:.8rem;color:var(--rose)">급감(서방형 붕괴)</td></tr>
+        </table>
+      </div>
+      <p class="data-note">※ 50&thinsp;mM은 "키토산 단독보다 높게 유지"로 보고됨(정확값 미제시). 정확값을 모르는 칸은 임의로 채우지 않는 것이 면담에서 더 안전합니다.</p>
+    </div>
+
+    <!-- DNA topology -->
+    <h3 class="reveal" style="font-size:1.15rem;font-weight:800;margin-top:38px">전기영동 — DNA의 모양으로 손상 정도를 읽다</h3>
+    <p class="reveal" style="color:var(--ink-dim);font-size:.94rem;margin-top:8px">플라스미드는 손상될수록 모양이 풀립니다. 모양이 다르면 젤에서 <b style="color:var(--signal)">움직이는 속도</b>가 달라져 위치로 구분할 수 있습니다. 카드를 눌러보세요.</p>
+    <div class="topo reveal" id="topo"></div>
+
+    <!-- gel quant table -->
+    <div class="card reveal" style="margin-top:24px">
+      <h3 style="margin-bottom:6px">전기영동 정량 결과 (ImageJ → Python)</h3>
+      <p style="font-size:.86rem;color:var(--ink-dim);margin-bottom:14px">대부분 시료에서 <strong style="color:var(--rose)">스미어(번짐)</strong>가 나타남 → genomic DNA 혼입. 신호가 기준에 못 미친 두 대조군은 정량에서 제외했습니다.</p>
+      <div class="gel-table-wrap" style="border:none">
+        <table class="gel">
+          <tr><th>조건</th><th>배경값</th><th>Leaked 신호</th><th>SC 신호</th><th>SC %</th><th>Leaked %</th></tr>
+          <tr class="excluded"><td>순수 대장균 <span class="tag-x">제외</span></td><td class="mono">63.3</td><td class="mono">-2.7</td><td class="mono">+9.1</td><td class="mono">—</td><td class="mono">—</td></tr>
+          <tr class="excluded"><td>산화 스트레스 <span class="tag-x">제외</span></td><td class="mono">81.1</td><td class="mono">-3.9</td><td class="mono">+10.8</td><td class="mono">—</td><td class="mono">—</td></tr>
+          <tr><td>AscA 10&thinsp;mM</td><td class="mono">87.8</td><td class="mono">+2.8</td><td class="mono">+11.8</td><td class="mono">—</td><td class="mono">—</td></tr>
+          <tr><td>AscA 50&thinsp;mM</td><td class="mono">89.4</td><td class="mono">+24.8</td><td class="mono">+20.1</td><td class="mono">44.7</td><td class="mono">55.3</td></tr>
+          <tr><td>AscA 100&thinsp;mM</td><td class="mono">88.3</td><td class="mono">+25.4</td><td class="mono">+19.7</td><td class="mono">43.7</td><td class="mono">56.3</td></tr>
+          <tr><td>키토산 단독</td><td class="mono">92.0</td><td class="mono">+27.6</td><td class="mono">+22.0</td><td class="mono">44.4</td><td class="mono">55.6</td></tr>
+          <tr><td>CS+10&thinsp;mM</td><td class="mono">92.7</td><td class="mono">+24.8</td><td class="mono">+21.8</td><td class="mono">46.7</td><td class="mono">53.3</td></tr>
+          <tr class="peak"><td>CS+50&thinsp;mM</td><td class="mono">89.8</td><td class="mono">+24.6</td><td class="mono">+23.1</td><td class="mono" style="color:var(--signal)">48.4</td><td class="mono">51.6</td></tr>
+          <tr class="peak"><td>CS+100&thinsp;mM</td><td class="mono">98.5</td><td class="mono">+27.4</td><td class="mono">+25.8</td><td class="mono" style="color:var(--signal)">48.6</td><td class="mono">51.4</td></tr>
+        </table>
+      </div>
+      <p class="data-note">※ SC(supercoiled) 비율은 전 조건 44~49%로 유사. CS+50/CS+100에서 약간 높지만 스미어 영향으로 우열 단정은 어려움 → "가능성 시사" 수준으로 해석.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LIMITS ================= -->
+<section id="limits">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-tag">한계점 & 개선 방향</div>
+      <h2 class="sec-h serif">스스로 인정하는 한계</h2>
+      <p class="sec-lead">면담에서 한계를 <b style="color:var(--amber)">먼저, 당당하게</b> 말하면 오히려 신뢰를 얻습니다. 핵심은 "한계를 알고 있고, 어떻게 개선할지도 안다"는 태도입니다.</p>
+    </div>
+    <div class="lim-grid">
+      <div class="lim reveal"><h4><span class="ic">⚠</span> 전기영동 스미어 & 혼입</h4><p>plasmid 추출 과정에서 genomic DNA가 섞여 번짐(스미어)이 발생, 신호 대 잡음비(S/N)가 낮아 정량이 어려웠습니다.</p><div class="fix">추출 키트·정제 단계 개선, RNase 처리 강화</div></div>
+      <div class="lim reveal"><h4><span class="ic">⚠</span> 대조군 제외</h4><p>가장 중요한 두 대조군(정상·손상 기준)이 신호 미달로 정량에서 빠져, 보호 효과를 강하게 주장하기 어렵습니다.</p><div class="fix">로딩량 균일화·재현 실험으로 대조군 신호 확보</div></div>
+      <div class="lim reveal"><h4><span class="ic">⚠</span> 방출 속도 미측정</h4><p>"서방형"이라 했지만 시간에 따른 방출 속도(kinetics)를 정량 측정하지 못하고 DCPIP로 정성 확인만 했습니다.</p><div class="fix">시간별 흡광도로 방출 프로파일 작성</div></div>
+      <div class="lim reveal"><h4><span class="ic">⚠</span> OD600의 한계</h4><p>OD600은 탁도 기반이라 살아있는 세포와 죽은 세포를 구분하지 못합니다. 생장량 = 항산화 효과로 보는 데엔 가정이 들어갑니다.</p><div class="fix">CFU(생균수) 측정 병행으로 보완</div></div>
+      <div class="lim reveal"><h4><span class="ic">⚠</span> 반복 횟수 부족</h4><p>조건별 반복(n)이 적어 통계적 유의성을 확보하기 어렵고, 10/100&thinsp;mM의 정확한 기전은 추정에 머뭅니다.</p><div class="fix">n≥3 반복 + 통계 검정 추가</div></div>
+      <div class="lim reveal"><h4><span class="ic">⚠</span> 간접 지표 의존</h4><p>대장균 생장으로 DNA 손상을 간접 추정합니다. 손상의 직접 증거(예: 8-OHdG 등 산화 마커)는 측정하지 못했습니다.</p><div class="fix">산화 손상 마커 정량 등 직접 지표 도입</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Q&A ================= -->
+<section id="qa">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-tag">면담 심사 대비</div>
+      <h2 class="sec-h serif">예상 질문 & 답변</h2>
+      <p class="sec-lead"><b style="color:var(--amber)">★ 표시</b>는 생명과학 전공 교사·교수님이 특히 파고들 가능성이 높은 질문입니다. 질문을 눌러 답변을 펼치고, 위 필터로 연구별로 골라 연습하세요.</p>
+    </div>
+    <div class="qa-controls reveal">
+      <button class="filt on" data-f="all">전체</button>
+      <button class="filt" data-f="이론">이론</button>
+      <button class="filt" data-f="연구1">연구1</button>
+      <button class="filt" data-f="연구2">연구2</button>
+      <button class="filt" data-f="연구3">연구3</button>
+      <button class="filt" data-f="결론">결론·종합</button>
+      <button class="filt star" data-f="star">★ 중점 질문만</button>
+      <span class="qa-count" id="qaCount"></span>
+    </div>
+    <div class="qa-list" id="qaList"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="big serif">"한계를 먼저 말하고, 그 다음에 가능성을 말하라."</p>
+    <p>제46회 인천광역시과학전람회 · 생물 · 출품번호 3325 — 면담 대비 학습 자료</p>
+    <button class="print-btn" onclick="window.print()">전체 펼쳐서 인쇄 / PDF 저장</button>
+  </div>
+</footer>
+
+<script>
+/* ===================== DATA ===================== */
+const theory = [
+  {n:"01", t:"ROS가 DNA를 끊는다 — 전기영동으로 보는 손상",
+   body:`활성산소종(ROS)은 UV나 화학물질로 생기는 반응성이 매우 큰 물질입니다. 특히 UV 환경의 과산화수소는 광분해되어 <strong>하이드록실 라디칼</strong>을 만들고, 이 라디칼이 DNA의 염기를 변형시키거나 <strong>당-인산 골격을 무작위로 끊습니다(strand break)</strong>. 끊긴 정도에 따라 플라스미드의 모양이 달라지고, 젤 전기영동에서 이동 속도가 달라져 손상을 추적할 수 있습니다.`,
+   easy:`<b>쉽게 말하면:</b> 활성산소는 DNA를 가위처럼 자르고, 잘린 정도에 따라 젤에서 달리는 속도가 달라져요.`},
+  {n:"02", t:"키토산의 양전하 — 어떻게 균을 억제하나",
+   body:`키토산은 키틴을 탈아세틸화해 얻는 생체 고분자로 <strong>아민기</strong>가 많습니다. 산성(아세트산) 조건에서 아민기가 수소이온과 결합해 <strong>양전하(암모늄기)</strong>를 띠고, 이 양전하가 대장균 외막의 <strong>음전하(인지질·지질다당류)</strong>와 강하게 끌립니다. 그 결과 세포막 구조가 교란되어 투과성 장벽이 무너지고 균의 증식이 억제됩니다.`,
+   easy:`<b>쉽게 말하면:</b> (+)전하 키토산이 (−)전하 세균 막에 달라붙어 막을 망가뜨려 균을 못 자라게 해요.`},
+  {n:"03", t:"OD600 — 빛으로 세균 수를 세다",
+   body:`배양액에 600nm 빛을 쪼이면 세포 입자에 의해 빛이 <strong>산란</strong>되고, 이 흡광도(OD600)는 세포 밀도와 직선 비례합니다. 시간에 따른 OD600 그래프(생장 곡선)는 <strong>유도기 → 대수기 → 정지기</strong>로 나뉩니다. 대조군과 비교하면 소재의 독성 여부와 항균 지속성을 평가할 수 있습니다.`,
+   easy:`<b>쉽게 말하면:</b> 배양액이 뿌옇게 흐릴수록 균이 많다는 뜻 — 그 흐림 정도를 숫자로 잰 게 OD600이에요.`},
+  {n:"04", t:"아스코르브산의 두 얼굴 — 항산화 vs 산화촉진",
+   body:`아스코르브산(비타민C)은 스스로 산화(→DHA)되며 주변 활성산소를 없애는 강한 환원제입니다. 그러나 <strong>고농도·고산소 환경에서 자가산화</strong>되면 부반응으로 과산화수소를 만들어 오히려 산화 스트레스를 주는 <strong>산화촉진제(pro-oxidant)</strong>로도 작용합니다. 방출 여부는 <strong>DCPIP</strong>로 확인 — 청색 DCPIP가 전자를 받아 무색으로 탈색되면 환원성 물질이 방출된 것입니다.`,
+   easy:`<b>쉽게 말하면:</b> 비타민C는 평소엔 활성산소를 없애는 착한 역할이지만, 너무 많으면 거꾸로 활성산소를 만들 수도 있어요. (100mM 결과의 단서!)`},
+  {n:"05", t:"팽윤과 서방형 방출 — '천천히' 내보내는 원리",
+   body:`키토산 필름은 물에 잠기면 사슬 간 수소결합이 약해지고 물을 흡수해 <strong>팽윤(swelling)</strong>합니다. 이때 내부 물질이 농도 기울기를 따라 점진적으로 확산되어 나오는 것이 <strong>서방형(sustained release)</strong>입니다. 방출 속도는 가교 밀도·농도·분자량에 좌우되며, 흔히 <strong>초기에 빠르게, 이후 완만하게(biphasic)</strong> 방출됩니다.`,
+   easy:`<b>쉽게 말하면:</b> 필름이 물을 머금어 부풀면서 안에 든 비타민C를 조금씩 흘려보내요. 이게 이 연구의 핵심 아이디어!`}
+];
+
+const topo = [
+  {key:"sc", name:"Supercoiled", kr:"초나선 (정상)", desc:"손상 없는 정상 플라스미드. 부피가 작고 단단히 감겨 있음.", speed:"가장 빠름 ▸▸▸", color:"#54e3c2"},
+  {key:"oc", name:"Open circular", kr:"열린 고리 (Leaked)", desc:"단일 가닥이 끊겨 구조가 풀린 상태. 부피가 커짐.", speed:"느려짐 ▸", color:"#f6b94f"},
+  {key:"lin", name:"Linear", kr:"선형", desc:"양쪽 가닥이 모두 끊긴 상태. 손상이 가장 심함.", speed:"가장 느림 ▸ (중간)", color:"#ff7d92"}
+];
+
+const dialData = {
+  0:  {anti:0,  loss:35, net:62, k:"기준선",      kc:"#9aa6c6", t:"<b>키토산 단독.</b> 양전하 항균 효과로 정상 생장보다 살짝 낮게 유지됩니다(18h 0.978 → 36h 0.972). 항산화제는 없습니다."},
+  10: {anti:22, loss:60, net:38, k:"역부족 ✕",    kc:"#ff7d92", t:"<b>10&thinsp;mM.</b> 아스코르브산이 키토산 양전하를 일부 중화해 <span class='key'>항균 기능은 떨어뜨리지만</span>, 항산화 효과로 보상하기엔 부족합니다. 결과적으로 키토산 단독보다 더 감소(0.916)."},
+  50: {anti:78, loss:48, net:88, k:"최적 균형 ★", kc:"#54e3c2", t:"<b>50&thinsp;mM.</b> 충분한 아스코르브산이 H₂O₂ 등 ROS를 효과적으로 소거 → <span class='key'>항산화 이득 &gt; 항균 손실</span>. 키토산 단독보다 높은 생장을 유지하는 최적 균형점."},
+  100:{anti:55, loss:82, net:30, k:"붕괴 ✕",      kc:"#ff7d92", t:"<b>100&thinsp;mM.</b> 과량의 아스코르브산이 필름 가교 구조를 약화 → 서방형이 무너지고 초기에 대량 방출(burst). 36h OD 0.601로 급감. (정확한 원인은 추가 검증 필요)"}
+};
+
+const qa = [
+  // 이론
+  {cat:"이론", star:false, q:"왜 UV가 아니라 ROS에 의한 손상에 초점을 맞췄나요?",
+   a:`UV가 직접 만드는 손상(thymine dimer 등)은 항산화제로 막기 어렵습니다. 반면 <strong>ROS가 매개하는 산화적 손상은 항산화 물질로 억제할 수 있다</strong>는 점에서, 항산화 매트릭스의 효과를 검증하기에 적합한 표적이라고 판단했습니다. 실제로 UV-A 환경에서 과산화수소가 손상을 매개한다는 선행연구(Gajewski, 2001)도 근거가 되었습니다.`,
+   pro:`핵심은 "왜 하필 ROS냐"에 대해 <b>'우리 소재로 막을 수 있는 손상'</b>을 골랐다는 논리를 분명히 하는 것.`},
+  {cat:"이론", star:true, q:"아스코르브산은 항산화제인데 오히려 산화를 일으킬 수도 있다고요?",
+   a:`네, 이를 <strong>'비타민C의 두 얼굴'</strong>이라 합니다. 평소엔 환원제로 ROS를 없애지만, <strong>고농도·고산소 환경에서 자가산화</strong>되면 부반응으로 <strong>과산화수소를 생성</strong>해 산화촉진제(pro-oxidant)로 작용합니다. 저희 연구에서 <span class="key">10&thinsp;mM과 100&thinsp;mM에서 효과가 떨어진 것</span>도 이 이면성으로 일부 설명할 수 있어 중요한 이론적 배경입니다.`,
+   pro:`<b>이 질문을 던졌다는 건</b> 10·100mM 결과 해석과 연결하라는 뜻. 이론 → 결과로 자연스럽게 이어가면 높은 점수.`},
+  {cat:"이론", star:false, q:"OD600 값이 정말 세포 수를 정확히 나타내나요?",
+   a:`OD600은 빛의 산란을 이용한 <strong>탁도 기반 측정</strong>이라 세포 밀도와 비례하지만, <strong>살아있는 세포와 죽은 세포를 구분하지 못한다</strong>는 한계가 있습니다. 그래서 저희는 OD600을 절대적 생균수가 아니라 <strong>조건 간 상대 비교</strong> 지표로 사용했고, 향후 CFU(생균수) 측정을 병행하면 보완할 수 있다고 봅니다.`,
+   pro:`한계를 먼저 인정하고 보완책(CFU)까지 말하는 게 모범 답안.`},
+
+  // 연구1
+  {cat:"연구1", star:false, q:"담체로 왜 하필 키토산을 골랐나요?",
+   a:`키토산은 ① <strong>아민기·하이드록실기</strong>가 풍부해 아스코르브산과 수소결합으로 담지할 수 있고, ② <strong>생분해성이 좋고 독성이 낮아</strong> 생물 실험에 적합하며, ③ 물에서 <strong>팽윤되며 서방형 방출</strong>이 가능하고, ④ 산성에서 양전하를 띠어 <strong>자체 항균성</strong>까지 있습니다. 항산화제를 '담아서 천천히 내보내는 그릇'으로 이상적이라 판단했습니다.`,
+   pro:``},
+  {cat:"연구1", star:true, q:"건조·용해·글리세롤 조건은 어떤 근거로 정했나요?",
+   a:`모두 <strong>예비실험으로 비교한 결과</strong>입니다. 건조는 자연건조가 3일 이상 걸려 50℃ 배양기를 채택했고, 용해는 키토산 저농도면 필름이 안 생기고 아세트산 과량이면 산성이 너무 강해 후속 실험에 부적합해서 <strong>충분히 교반 후 거즈로 정제</strong>하는 방법을 택했습니다. 글리세롤은 없으면 필름이 부서지고 과량이면 끈적여 <strong>1%</strong>가 가장 안정적이었습니다. 최종 조건은 키토산 1.2%·아세트산 1%·글리세롤 1%입니다.`,
+   pro:`<b>"왜 그 값?"</b>에 "예비실험으로 비교했다"는 과정 근거를 대는 게 핵심. 숫자만 외우면 후속 질문에 막힘.`},
+  {cat:"연구1", star:false, q:"매트릭스 면적을 1cm²로 통제한 이유는?",
+   a:`방출량은 <strong>표면적에 영향을 받기 때문</strong>입니다. 면적이 제각각이면 농도 차이 때문인지 면적 차이 때문인지 구분할 수 없으므로, 면적을 1cm²로 고정해 <strong>오직 아스코르브산 농도만 변인이 되도록</strong> 통제했습니다.`,
+   pro:`변인 통제 의식을 보여주는 좋은 포인트.`},
+
+  // 연구2
+  {cat:"연구2", star:true, q:"DCPIP 탈색이 정말 아스코르브산 때문이라고 확신하나요?",
+   a:`솔직히 말씀드리면, DCPIP는 <strong>'환원성 물질이 방출되었다'까지를 정성적으로 보여주는</strong> 실험입니다. 이론적으로 매트릭스에 넣은 것이 아스코르브산이므로 탈색의 주원인으로 보지만, <strong>다른 환원성 물질의 가능성을 100% 배제하지는 못합니다</strong>. 키토산 단독 침지액을 음성 대조로 두거나 흡광도 정량·HPLC로 물질을 특정하면 더 엄밀해집니다.`,
+   pro:`<b>날카로운 질문.</b> 정직하게 "정성적 확인"임을 인정 + 보완책 제시가 정답. 과장하면 신뢰를 잃음.`},
+  {cat:"연구2", star:false, q:"DCPIP가 청색에서 무색으로 변하는 화학적 원리를 설명해 보세요.",
+   a:`DCPIP는 <strong>산화 상태에서 짙은 청색</strong>을 띱니다. 아스코르브산 같은 환원제가 <strong>전자를 내주면</strong> DCPIP가 그 전자를 받아 환원되고, 환원형은 <strong>무색(또는 옅은 분홍)</strong>이 됩니다. 즉 탈색 정도가 곧 환원력(전자 공여 능력)의 척도가 됩니다.`,
+   pro:`산화·환원과 전자 이동을 정확한 용어로 말할 수 있는지 확인하는 질문.`},
+
+  // 연구3
+  {cat:"연구3", star:true, q:"50&thinsp;mM에서 대장균 생장이 더 높았던 이유를 설명하세요.",
+   a:`두 효과의 <strong>줄다리기 결과</strong>입니다. 아스코르브산은 키토산의 양전하를 일부 중화해 <strong>항균력을 떨어뜨리는 손실</strong>을 주지만, 동시에 H₂O₂를 포함한 ROS를 소거하는 <strong>항산화 이득</strong>을 줍니다. 50&thinsp;mM에서는 <span class="key">항산화 이득이 항균 손실보다 커서</span> 키토산 단독보다도 생장이 높게 유지됐습니다 — 두 효과의 최적 균형점입니다.`,
+   pro:`<b>가장 중요한 결과 해석.</b> "균형점"이라는 핵심 프레임을 또렷하게. 위 '균형 다이얼'로 연습하세요.`},
+  {cat:"연구3", star:true, q:"그럼 10&thinsp;mM은 왜 오히려 키토산 단독보다 낮았나요?",
+   a:`10&thinsp;mM은 <strong>키토산의 항균 기능을 저해하기엔 충분하지만, 그 손실을 항산화로 보상하기엔 부족한 농도</strong>였다고 해석합니다. 또한 낮은 농도라 자연 산화로 생긴 소량의 H₂O₂를 충분히 소거하지 못해 국소 산화 스트레스를 오히려 가중했을 가능성도 있습니다. 다만 <strong>정확한 기전은 추가 분석이 필요</strong>한 추정입니다.`,
+   pro:`"손실은 일으키고 이득은 못 준다"는 논리 + <b>추정임을 명시</b>하는 절제가 중요.`},
+  {cat:"연구3", star:true, q:"100&thinsp;mM에서 OD가 0.601로 급감한 건 그냥 농도가 너무 높아 독성이 생긴 것 아닌가요?",
+   a:`단순 농도 독성으로만 보긴 어렵습니다. 서방형 필름이라는 점을 고려하면, <strong>과량의 아스코르브산이 키토산 필름의 가교 구조를 약화</strong>시켜 서방형 특성이 무너지고 <strong>초기에 대량 방출(burst release)</strong>이 일어났을 가능성이 큽니다. 갑자기 쏟아진 고농도 아스코르브산이 pro-oxidant로 작용했을 수도 있습니다. <strong>정확한 원인은 본 실험만으로 단정하기 어려워</strong> 추가 검증이 필요합니다.`,
+   pro:`교수님이 일부러 단순한 해석을 던질 때, <b>'서방형 붕괴'</b>라는 더 정교한 가설로 답하면 깊이를 보여줄 수 있음.`},
+  {cat:"연구3", star:false, q:"전기영동에서 supercoiled·open circular·linear는 각각 무엇을 의미하나요?",
+   a:`플라스미드의 손상 정도를 나타내는 모양입니다. <strong>Supercoiled(초나선)</strong>는 손상 없는 정상형으로 부피가 작아 젤에서 가장 빠르고, <strong>Open circular(leaked)</strong>는 단일 가닥이 끊겨 풀린 상태, <strong>Linear(선형)</strong>는 양쪽 가닥이 모두 끊긴 가장 심한 손상입니다. 따라서 <span class="key">SC 비율이 높을수록 DNA가 잘 보존</span>된 것입니다.`,
+   pro:`'결과 해석'의 DNA 모양 카드로 시각적으로 익히면 답하기 쉬움.`},
+  {cat:"연구3", star:true, q:"스미어가 생기고 대조군 2개를 분석에서 제외했는데, 그럼 보호 효과를 입증했다고 말할 수 있나요?",
+   a:`엄밀히 말하면 <strong>본 전기영동 데이터만으로 보호 효과를 '입증'했다고 주장하지는 않습니다</strong>. plasmid 추출 과정에서 genomic DNA가 혼입돼 스미어가 생겼고, 정상·손상 기준이 되는 두 대조군의 신호가 기준에 못 미쳐 제외할 수밖에 없었습니다. 그래서 결론도 "입증"이 아니라 <strong>"DNA 안정성에 기여할 가능성을 시사한다"</strong>로 신중하게 표현했습니다. 명확한 결론을 위해서는 <strong>추출 정제 개선과 반복 실험</strong>이 반드시 필요합니다.`,
+   pro:`<b>가장 날카로운 질문이자 가장 중요한 답변.</b> 과장하지 않고 "가능성 시사" 수준임을 인정하는 태도가 오히려 가장 강력한 방어. 절대 무리하게 입증을 주장하지 말 것.`},
+  {cat:"연구3", star:false, q:"산화 스트레스 조건(H₂O₂ 1%, UV-A 365nm, 15분)은 어떻게 정했나요?",
+   a:`UV-A 환경에서 과산화수소가 DNA 손상을 매개한다는 선행연구(Gajewski et al., 2001)를 근거로 H₂O₂와 UV를 함께 사용했습니다. 조사 거리·시간(15cm·15분)은 모든 조건에 <strong>동일하게 적용</strong>해, 산화 스트레스 자체는 상수로 두고 항산화 처리만 비교했습니다.`,
+   pro:`조건의 근거(선행연구)와 통제(동일 적용)를 함께.`},
+
+  // 결론
+  {cat:"결론", star:true, q:"이 연구의 핵심 결론을 한 문장으로 말한다면?",
+   a:`<strong>"키토산-아스코르브산 매트릭스는 항산화 물질을 담지·방출할 수 있으며, 50&thinsp;mM에서 항산화 효과와 항균 기능 저해 사이의 균형이 최적이었고, ROS에 의한 DNA 손상 억제 가능성을 시사한다(추가 검증 필요)."</strong> — 과장 없이 '가능성'까지만 말하는 것이 핵심입니다.`,
+   pro:`<b>반드시 준비.</b> 결론 한 문장은 면담의 거의 모든 길에서 마지막에 돌아오는 지점.`},
+  {cat:"결론", star:false, q:"기존 연구와 무엇이 다른가요? (차별성)",
+   a:`기존 연구들(예: 비타민의 DNA 손상 완화 효과 규명)은 <strong>특정 항산화 물질의 효과 자체를 밝히는 데</strong> 초점을 둡니다. 반면 저희는 효과 규명을 넘어 <strong>항산화 물질의 방출을 '조절하고 활용'하는 전달 시스템</strong>을 설계했다는 점에서 방향성이 다릅니다.`,
+   pro:`차별성은 "물질 효과 규명 → 방출 조절·활용"이라는 한 줄로 외워두기.`},
+  {cat:"결론", star:false, q:"이 연구가 실제로 어디에 쓰일 수 있나요?",
+   a:`항산화제를 <strong>점진적으로 공급하는 전달체</strong>라는 점에서, 반복 처리가 필요한 기존 직접 첨가 방식의 단점을 보완할 수 있습니다. <strong>미생물 보존, 교육용 실험, 야외 연구나 자원이 제한된 환경의 보존 기술</strong>로 발전할 잠재력이 있다고 봅니다.`,
+   pro:``},
+  {cat:"결론", star:true, q:"후속 연구를 딱 하나만 한다면 무엇을 하겠어요?",
+   a:`<strong>시간에 따른 방출 속도(release kinetics) 프로파일 작성과 장기 보존 실험</strong>을 하겠습니다. '서방형'이라는 핵심 주장을 정량적으로 뒷받침할 수 있고, 동시에 <strong>전기영동 추출 과정을 개선하고 반복(n≥3)을 확보</strong>해 이번 연구의 가장 큰 한계를 메우겠습니다. 농도도 30~70&thinsp;mM 구간을 세분화해 최적점을 더 정밀하게 찾고 싶습니다.`,
+   pro:`<b>한계 → 후속과제</b>가 일관되게 연결되면 "연구를 끝까지 이해하고 있다"는 인상을 줌.`}
+];
+
+/* ===================== RENDER ===================== */
+// theory accordion
+const accEl = document.getElementById('theoryAcc');
+theory.forEach((th)=>{
+  const item = document.createElement('div');
+  item.className='acc-item';
+  item.innerHTML = `
+    <button class="acc-head" aria-expanded="false">
+      <span class="acc-num">${th.n}</span>
+      <span class="acc-title">${th.t}</span>
+      <span class="acc-plus">+</span>
+    </button>
+    <div class="acc-body"><div class="acc-inner">${th.body}<div class="easy">${th.easy}</div></div></div>`;
+  accEl.appendChild(item);
+  const head = item.querySelector('.acc-head');
+  const body = item.querySelector('.acc-body');
+  head.addEventListener('click',()=>{
+    const open = item.classList.toggle('open');
+    head.setAttribute('aria-expanded',open);
+    body.style.maxHeight = open ? body.scrollHeight+'px' : 0;
+  });
+});
+
+// DNA topology
+const topoEl = document.getElementById('topo');
+function topoSvg(key,color){
+  if(key==='sc') return `<svg viewBox="0 0 80 60"><path d="M15 30 C25 12 55 12 65 30 C55 48 25 48 15 30 M22 22 C40 35 40 35 58 38 M22 38 C40 25 40 25 58 22" stroke="${color}" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`;
+  if(key==='oc') return `<svg viewBox="0 0 80 60"><ellipse cx="40" cy="30" rx="26" ry="17" stroke="${color}" stroke-width="3" fill="none"/><path d="M60 18 L66 12" stroke="${color}" stroke-width="3" stroke-linecap="round"/></svg>`;
+  return `<svg viewBox="0 0 80 60"><path d="M12 30 C28 22 52 38 68 30" stroke="${color}" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`;
+}
+topo.forEach((t,i)=>{
+  const c=document.createElement('div');
+  c.className='topo-card'+(i===0?' on':'');
+  c.innerHTML=`${topoSvg(t.key,t.color)}<div class="tn">${t.kr}</div><div class="te">${t.name}</div><div class="ts">${t.desc}</div><div class="topo-speed" style="color:${t.color}">${t.speed}</div>`;
+  c.addEventListener('click',()=>{document.querySelectorAll('.topo-card').forEach(x=>x.classList.remove('on'));c.classList.add('on')});
+  topoEl.appendChild(c);
+});
+
+// dial
+const barAnti=document.getElementById('barAnti'), barLoss=document.getElementById('barLoss'),
+      barNet=document.getElementById('barNet'), dialRead=document.getElementById('dialRead');
+function setDial(c){
+  const d=dialData[c];
+  barAnti.style.width=d.anti+'%'; barAnti.querySelector('span').textContent=d.anti?d.anti+'':'';
+  barLoss.style.width=d.loss+'%'; barLoss.querySelector('span').textContent=d.loss?d.loss+'':'';
+  barNet.style.width=d.net+'%';   barNet.querySelector('span').textContent=d.net?d.net+'':'';
+  dialRead.innerHTML=`<div class="vk" style="color:${d.kc}">${d.k}</div><div class="vt">${d.t}</div>`;
+}
+document.querySelectorAll('#dialStops .dial-stop').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#dialStops .dial-stop').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); setDial(b.dataset.c);
+  });
+});
+setDial('50');
+
+// tabs
+document.querySelectorAll('.tab-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); document.getElementById(b.dataset.tab).classList.add('on');
+  });
+});
+
+// Q&A
+const qaList=document.getElementById('qaList'), qaCount=document.getElementById('qaCount');
+function renderQA(filter){
+  qaList.innerHTML='';
+  const items = qa.filter(x=> filter==='all'?true : filter==='star'?x.star : x.cat===filter);
+  items.forEach(x=>{
+    const el=document.createElement('div');
+    el.className='qa'+(x.star?' starred':'');
+    el.innerHTML=`
+      <button class="qa-q" aria-expanded="false">
+        <span class="qa-cat cat-${x.cat}">${x.cat}</span>
+        <span class="qa-qtext">${x.q}</span>
+        <span class="qa-star">★</span>
+        <span class="qa-toggle">▾</span>
+      </button>
+      <div class="qa-a"><div class="qa-a-inner">
+        <span class="ans-lab">모범 답변</span>${x.a}
+        ${x.pro?`<div class="pro"><b>🎓 교수님 포인트 ·</b> ${x.pro}</div>`:''}
+      </div></div>`;
+    qaList.appendChild(el);
+    const btn=el.querySelector('.qa-q'), ans=el.querySelector('.qa-a');
+    btn.addEventListener('click',()=>{
+      const open=el.classList.toggle('open');
+      btn.setAttribute('aria-expanded',open);
+      ans.style.maxHeight= open? ans.scrollHeight+'px':0;
+    });
+  });
+  qaCount.textContent=`${items.length}개 질문`;
+}
+document.querySelectorAll('.filt').forEach(f=>{
+  f.addEventListener('click',()=>{
+    document.querySelectorAll('.filt').forEach(x=>x.classList.remove('on'));
+    f.classList.add('on'); renderQA(f.dataset.f);
+  });
+});
+renderQA('all');
+
+// reveal on scroll
+const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// nav scroll-spy
+const secs=[...document.querySelectorAll('section[id]')];
+const links=[...document.querySelectorAll('.nav-links a')];
+const spy=new IntersectionObserver((es)=>{
+  es.forEach(e=>{ if(e.isIntersecting){
+    links.forEach(l=>l.classList.toggle('on', l.getAttribute('href')==='#'+e.target.id));
+  }});
+},{rootMargin:'-45% 0px -50% 0px'});
+secs.forEach(s=>spy.observe(s));
+</script>
+</body>
+</html>
